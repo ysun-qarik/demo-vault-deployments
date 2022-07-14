@@ -1,0 +1,40 @@
+pipeline:
+  name: vault-deployment-pipeline
+  git:
+    owner: genesis-community
+    repo:  vault-genesis-kit
+    branch: develop
+    private_key: (( vault "concourse/main/github:private_key" ))
+
+  vault:
+    url:    https://10.4.1.7
+    verify: yes
+    role: (( vault "concourse/genesis/vault:role_id" ))
+    secret: (( vault "concourse/genesis/vault:secret_id" ))
+  
+  slack: 
+    channel: '#botspam'
+    webhook: (( vault "concourse/genesis/slack:webhook" ))
+
+  boshes:
+    dev:
+      alias:    dev
+      url:      https://10.4.16.4:25555
+      ca_cert:  (( vault "secret/dev/bosh/ssl/ca:certificate" ))
+      username: admin
+      password: (( vault "secret/dev/bosh/users/admin:password" ))
+    # test:
+    #   alias:    uswest2demo
+    #   url:      https://10.4.1.4:25555
+    #   ca_cert:  (( vault "secret/uswest2demo/bosh/ssl/ca:certificate" ))
+    #   username: admin
+    #   password: (( vault "secret/uswest2demo/bosh/users/admin:password" ))
+    
+  layouts:
+    default: |+
+      auto *dev
+
+  groups:
+    default:
+    - dev
+    # - uswest2demo
